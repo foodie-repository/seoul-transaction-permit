@@ -101,10 +101,42 @@ def crawl_land_contracts():
             # 페이지 로드 대기 (Playwright는 자동으로 대기하지만 명시적으로 확인)
             page.wait_for_selector("#selectSigungu")
 
-            # 날짜 설정
-            today = datetime.now()
-            start_date_str = "2025-11-01"
-            end_date_str = today.strftime("%Y-%m-%d")
+            # 날짜 설정 - 사용자 입력
+            print("=" * 60)
+            print("토지거래허가구역 데이터 수집")
+            print("=" * 60)
+            print("※ 최대 조회 가능 기간: 60일")
+            print("※ 날짜 형식: YYYY-MM-DD (예: 2025-11-01)")
+            print("-" * 60)
+
+            while True:
+                start_date_str = input("시작일자를 입력하세요: ").strip()
+                end_date_str = input("종료일자를 입력하세요: ").strip()
+
+                try:
+                    # 날짜 유효성 검증
+                    start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
+                    end_date = datetime.strptime(end_date_str, "%Y-%m-%d")
+
+                    # 날짜 순서 확인
+                    if start_date > end_date:
+                        print("⚠️  오류: 시작일자가 종료일자보다 늦습니다. 다시 입력해주세요.\n")
+                        continue
+
+                    # 60일 초과 여부 확인
+                    date_diff = (end_date - start_date).days
+                    if date_diff > 60:
+                        print(f"⚠️  오류: 조회 기간이 {date_diff}일로 60일을 초과합니다. 다시 입력해주세요.\n")
+                        continue
+
+                    # 정상 입력
+                    print(f"\n✓ 조회 기간: {start_date_str} ~ {end_date_str} ({date_diff + 1}일)")
+                    print("=" * 60)
+                    break
+
+                except ValueError:
+                    print("⚠️  오류: 올바른 날짜 형식이 아닙니다. YYYY-MM-DD 형식으로 입력해주세요.\n")
+                    continue
 
             print(f"Crawling from {start_date_str} to {end_date_str}")
 
@@ -130,11 +162,13 @@ def crawl_land_contracts():
                 # 시작 날짜 입력
                 start_input = page.locator("#changeBgnde")
                 start_input.evaluate("el => el.removeAttribute('readonly')")
+                start_input.clear()  # 기존 값 제거
                 start_input.fill(start_date_str)
 
                 # 종료 날짜 입력
                 end_input = page.locator("#changeEndde")
                 end_input.evaluate("el => el.removeAttribute('readonly')")
+                end_input.clear()  # 기존 값 제거
                 end_input.fill(end_date_str)
 
                 # 검색 버튼 클릭

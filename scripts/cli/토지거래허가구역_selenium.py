@@ -82,12 +82,42 @@ def crawl_land_contracts():
         wait = WebDriverWait(driver, 10)
         wait.until(EC.presence_of_element_located((By.ID, "selectSigungu")))
 
-        # 2. Date Calculation
-        today = datetime.now()
-        # Fixed start date as requested (YYYY-MM-DD)
-        start_date_str = "2025-11-01"
-        # Today's date (YYYY-MM-DD)
-        end_date_str = today.strftime("%Y-%m-%d")
+        # 2. 날짜 설정 - 사용자 입력
+        print("=" * 60)
+        print("토지거래허가구역 데이터 수집")
+        print("=" * 60)
+        print("※ 최대 조회 가능 기간: 60일")
+        print("※ 날짜 형식: YYYY-MM-DD (예: 2025-11-01)")
+        print("-" * 60)
+
+        while True:
+            start_date_str = input("시작일자를 입력하세요: ").strip()
+            end_date_str = input("종료일자를 입력하세요: ").strip()
+
+            try:
+                # 날짜 유효성 검증
+                start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
+                end_date = datetime.strptime(end_date_str, "%Y-%m-%d")
+
+                # 날짜 순서 확인
+                if start_date > end_date:
+                    print("⚠️  오류: 시작일자가 종료일자보다 늦습니다. 다시 입력해주세요.\n")
+                    continue
+
+                # 60일 초과 여부 확인
+                date_diff = (end_date - start_date).days
+                if date_diff > 60:
+                    print(f"⚠️  오류: 조회 기간이 {date_diff}일로 60일을 초과합니다. 다시 입력해주세요.\n")
+                    continue
+
+                # 정상 입력
+                print(f"\n✓ 조회 기간: {start_date_str} ~ {end_date_str} ({date_diff + 1}일)")
+                print("=" * 60)
+                break
+
+            except ValueError:
+                print("⚠️  오류: 올바른 날짜 형식이 아닙니다. YYYY-MM-DD 형식으로 입력해주세요.\n")
+                continue
 
         print(f"Crawling from {start_date_str} to {end_date_str}")
         # Get all district options

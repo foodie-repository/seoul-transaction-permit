@@ -150,10 +150,12 @@ def crawl_land_contracts(config):
                     # 날짜 입력
                     start_input = page.locator("#changeBgnde")
                     start_input.evaluate("el => el.removeAttribute('readonly')")
+                    start_input.clear()  # 기존 값 제거
                     start_input.fill(start_date)
 
                     end_input = page.locator("#changeEndde")
                     end_input.evaluate("el => el.removeAttribute('readonly')")
+                    end_input.clear()  # 기존 값 제거
                     end_input.fill(end_date)
 
                     # 검색
@@ -278,6 +280,30 @@ def start_crawling():
     # 입력 검증
     if not config.get("api_key") or not config.get("kakao_api_key"):
         return jsonify({"error": "API 키를 입력해주세요."}), 400
+
+    # 날짜 검증
+    try:
+        start_date_str = config.get("start_date")
+        end_date_str = config.get("end_date")
+
+        if not start_date_str or not end_date_str:
+            return jsonify({"error": "시작일자와 종료일자를 모두 입력해주세요."}), 400
+
+        # 날짜 형식 검증
+        start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date_str, "%Y-%m-%d")
+
+        # 날짜 순서 확인
+        if start_date > end_date:
+            return jsonify({"error": "시작일자가 종료일자보다 늦습니다. 날짜를 확인해주세요."}), 400
+
+        # 60일 초과 여부 확인
+        date_diff = (end_date - start_date).days
+        if date_diff > 60:
+            return jsonify({"error": f"조회 기간이 {date_diff}일로 60일을 초과합니다. 최대 60일 이내로 설정해주세요."}), 400
+
+    except ValueError:
+        return jsonify({"error": "올바른 날짜 형식이 아닙니다. YYYY-MM-DD 형식으로 입력해주세요."}), 400
 
     # 별도 스레드에서 크롤링 실행
     thread = threading.Thread(target=crawl_land_contracts, args=(config,), daemon=True)

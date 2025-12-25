@@ -86,6 +86,14 @@ class LandCrawlerGUI:
             row=1, column=1, sticky=tk.W, pady=5, padx=5
         )
 
+        # 날짜 제한 안내
+        warning_label = ttk.Label(
+            date_frame,
+            text="⚠️ 최대 조회 가능 기간: 60일 (웹사이트 정책)",
+            foreground="orange"
+        )
+        warning_label.grid(row=2, column=0, columnspan=2, sticky=tk.W, pady=5)
+
         # 저장 경로 섹션
         save_frame = ttk.LabelFrame(main_frame, text="저장 설정", padding="10")
         save_frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
@@ -181,11 +189,26 @@ class LandCrawlerGUI:
             messagebox.showerror("오류", "API 키를 입력해주세요.")
             return
 
+        # 날짜 검증
         try:
-            datetime.strptime(self.start_date_var.get(), "%Y-%m-%d")
-            datetime.strptime(self.end_date_var.get(), "%Y-%m-%d")
+            start_date = datetime.strptime(self.start_date_var.get(), "%Y-%m-%d")
+            end_date = datetime.strptime(self.end_date_var.get(), "%Y-%m-%d")
         except ValueError:
             messagebox.showerror("오류", "날짜 형식이 올바르지 않습니다. (YYYY-MM-DD)")
+            return
+
+        # 날짜 순서 확인
+        if start_date > end_date:
+            messagebox.showerror("오류", "시작일자가 종료일자보다 늦습니다.\n날짜를 확인해주세요.")
+            return
+
+        # 60일 초과 여부 확인
+        date_diff = (end_date - start_date).days
+        if date_diff > 60:
+            messagebox.showerror(
+                "오류",
+                f"조회 기간이 {date_diff}일로 60일을 초과합니다.\n최대 60일 이내로 설정해주세요."
+            )
             return
 
         if not os.path.exists(self.save_path_var.get()):
@@ -268,10 +291,12 @@ class LandCrawlerGUI:
                         # 날짜 입력
                         start_input = page.locator("#changeBgnde")
                         start_input.evaluate("el => el.removeAttribute('readonly')")
+                        start_input.clear()  # 기존 값 제거
                         start_input.fill(start_date)
 
                         end_input = page.locator("#changeEndde")
                         end_input.evaluate("el => el.removeAttribute('readonly')")
+                        end_input.clear()  # 기존 값 제거
                         end_input.fill(end_date)
 
                         # 검색

@@ -15,7 +15,7 @@ uv run pyinstaller --clean \
     --name "토지거래허가구역크롤러" \
     --windowed \
     --onefile \
-    --add-data "templates:templates" \
+    --add-data "scripts/gui/web/templates:templates" \
     --add-data "static:static" \
     --hidden-import flask \
     --hidden-import flask_cors \
@@ -23,7 +23,7 @@ uv run pyinstaller --clean \
     --hidden-import playwright.sync_api \
     --hidden-import pandas \
     --hidden-import requests \
-    토지거래허가구역_Playwright_Web-GUI.py
+    scripts/gui/web/토지거래허가구역_웹GUI.py
 
 echo "========================================="
 echo "빌드 완료!"

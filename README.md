@@ -19,6 +19,7 @@
 - ✅ 서울시 25개 구/군의 토지거래허가구역 정보 자동 수집
 - ✅ 지번 주소 → 도로명 주소 자동 변환
 - ✅ 주소 → 위도/경도 좌표 자동 변환
+- ✅ 사용자 정의 날짜 범위 설정 (최대 60일)
 - ✅ 현대적인 웹 기반 GUI 인터페이스
 - ✅ 실시간 진행 상황 모니터링
 - ✅ Windows/Mac 실행 파일 지원
@@ -29,31 +30,34 @@
 ```
 토지거래허가구역/
 │
-├── 🌐 웹 GUI (추천)
-│   ├── 토지거래허가구역_Playwright_Web-GUI.py     # 토지거래허가구역 크롤러
-│   ├── 서울_공동주택_Web-GUI.py                   # 서울 공동주택 수집기
-│   └── templates/
-│       ├── index.html                            # 토지거래허가구역 웹 UI
-│       └── apartment_index.html                  # 공동주택 웹 UI
+├── scripts/                      # 스크립트 폴더
+│   ├── cli/                      # 💻 CLI 버전
+│   │   ├── 토지거래허가구역_selenium.py       # Selenium CLI
+│   │   └── 토지거래허가구역_playwright.py     # Playwright CLI (추천)
+│   │
+│   └── gui/                      # GUI 버전
+│       ├── web/                  # 🌐 웹 GUI (추천)
+│       │   ├── 토지거래허가구역_웹GUI.py      # Flask 웹 서버
+│       │   └── templates/
+│       │       └── index.html                 # 웹 UI
+│       │
+│       └── desktop/              # 🖥️ 데스크톱 GUI
+│           └── 토지거래허가구역_데스크톱GUI.py   # tkinter GUI
 │
-├── 💻 CLI 버전
-│   ├── 토지거래허가구역+도로명주소+좌표_서울.py              # Selenium CLI
-│   ├── 토지거래허가구역+도로명주소+좌표_서울_playwright.py   # Playwright CLI
-│   └── 서울_공동주택.py                                    # 공동주택 수집 CLI
-│
-├── 🖥️ 데스크톱 GUI (실행 불가)
-│   └── 토지거래허가구역_Selenium_tkinter-GUI.py     # tkinter GUI (macOS 호환성 문제)
-│
-├── 🔧 빌드 스크립트
+├── build-scripts/                # 🔧 빌드 스크립트
 │   ├── build_web_app.sh          # Mac/Linux 토지거래허가구역 빌드
 │   ├── build_web_app.bat         # Windows 토지거래허가구역 빌드
 │   ├── build_apartment_app.sh    # Mac/Linux 공동주택 빌드
 │   ├── build_apartment_app.bat   # Windows 공동주택 빌드
-│   ├── build_app.sh              # Mac/Linux tkinter 빌드 (비활성)
-│   └── build_app.bat             # Windows tkinter 빌드 (비활성)
+│   └── build_app.sh              # Mac/Linux tkinter 빌드 (비활성)
 │
-└── 📚 문서
-    └── README.md                 # 이 파일
+├── output/                       # 📊 출력 파일 폴더
+│   └── *.csv                     # 수집된 CSV 파일
+│
+├── 서울_공동주택_Web-GUI.py      # 서울 공동주택 수집기 (별도 프로젝트)
+├── pyproject.toml                # uv 프로젝트 설정
+├── uv.lock                       # 의존성 잠금 파일
+└── README.md                     # 이 파일
 ```
 
 ### 파일명 규칙
@@ -87,7 +91,7 @@
 uv sync
 
 # 웹 서버 실행
-uv run python 토지거래허가구역_Playwright_Web-GUI.py
+uv run python scripts/gui/web/토지거래허가구역_웹GUI.py
 ```
 
 실행하면 자동으로 브라우저가 열리고 `http://127.0.0.1:5000`에 접속됩니다.
@@ -181,7 +185,7 @@ GUI 없이 명령줄에서 실행하고 싶은 경우:
 ### Playwright 버전 (추천)
 
 ```bash
-uv run python 토지거래허가구역+도로명주소+좌표_서울_playwright.py
+uv run python scripts/cli/토지거래허가구역_playwright.py
 ```
 
 **장점**: 더 빠르고 안정적
@@ -189,10 +193,35 @@ uv run python 토지거래허가구역+도로명주소+좌표_서울_playwright.
 ### Selenium 버전
 
 ```bash
-uv run python 토지거래허가구역+도로명주소+좌표_서울.py
+uv run python scripts/cli/토지거래허가구역_selenium.py
 ```
 
 **참고**: WebDriver 자동 설치 필요
+
+### 날짜 입력 방식
+
+CLI 버전 실행 시 다음과 같이 날짜를 입력하게 됩니다:
+
+```text
+============================================================
+토지거래허가구역 데이터 수집
+============================================================
+※ 최대 조회 가능 기간: 60일
+※ 날짜 형식: YYYY-MM-DD (예: 2025-11-01)
+------------------------------------------------------------
+시작일자를 입력하세요: 2025-11-01
+종료일자를 입력하세요: 2025-12-26
+
+✓ 조회 기간: 2025-11-01 ~ 2025-12-26 (56일)
+============================================================
+```
+
+**입력 검증**:
+
+- ✅ 날짜 형식 자동 검증 (YYYY-MM-DD)
+- ✅ 시작일 ≤ 종료일 확인
+- ✅ 최대 60일 제한 검증
+- ✅ 오류 시 재입력 요청
 
 ## 🔨 실행 파일 빌드
 
@@ -204,17 +233,17 @@ uv run python 토지거래허가구역+도로명주소+좌표_서울.py
 
 ```bash
 # 실행 권한 부여
-chmod +x build_web_app.sh
+chmod +x build-scripts/build_web_app.sh
 
 # 빌드 실행
-./build_web_app.sh
+./build-scripts/build_web_app.sh
 ```
 
 #### Windows
 
 ```cmd
 # 빌드 실행
-build_web_app.bat
+build-scripts\build_web_app.bat
 ```
 
 #### 빌드 결과
@@ -229,17 +258,17 @@ build_web_app.bat
 
 ```bash
 # 실행 권한 부여
-chmod +x build_apartment_app.sh
+chmod +x build-scripts/build_apartment_app.sh
 
 # 빌드 실행
-./build_apartment_app.sh
+./build-scripts/build_apartment_app.sh
 ```
 
 #### Windows
 
 ```cmd
 # 빌드 실행
-build_apartment_app.bat
+build-scripts\build_apartment_app.bat
 ```
 
 #### 빌드 결과
@@ -295,13 +324,14 @@ build_apartment_app.bat
 **공유할 파일들**:
 ```
 토지거래허가구역/
+├── scripts/                                    # 필수
+│   └── gui/web/                               # 필수
+│       ├── 토지거래허가구역_웹GUI.py          # 필수 (토지거래)
+│       └── templates/                         # 필수
+│           └── index.html                     # 필수
+├── 서울_공동주택_Web-GUI.py                    # 필수 (공동주택)
 ├── pyproject.toml                              # 필수
 ├── uv.lock                                     # 필수
-├── 토지거래허가구역_Playwright_Web-GUI.py      # 필수 (토지거래)
-├── 서울_공동주택_Web-GUI.py                    # 필수 (공동주택)
-├── templates/                                  # 필수
-│   ├── index.html                             # 필수
-│   └── apartment_index.html                   # 필수
 ├── README.md                                   # 권장
 └── .gitignore                                  # 선택
 ```
@@ -324,7 +354,7 @@ uv sync
 
 # 3. 프로그램 실행
 # 토지거래허가구역 크롤러
-uv run python 토지거래허가구역_Playwright_Web-GUI.py
+uv run python scripts/gui/web/토지거래허가구역_웹GUI.py
 
 # 또는 서울 공동주택 수집기
 uv run python 서울_공동주택_Web-GUI.py
@@ -344,7 +374,8 @@ uv run python 서울_공동주택_Web-GUI.py
 **대상**: 명령줄 환경을 선호하는 사용자
 
 **공유할 파일들**:
-- `토지거래허가구역+도로명주소+좌표_서울_playwright.py`
+- `scripts/cli/토지거래허가구역_playwright.py`
+- `scripts/cli/토지거래허가구역_selenium.py`
 - `서울_공동주택.py`
 - `pyproject.toml`
 - `uv.lock`
@@ -352,7 +383,7 @@ uv run python 서울_공동주택_Web-GUI.py
 **사용 방법**:
 ```bash
 uv sync
-uv run python 토지거래허가구역+도로명주소+좌표_서울_playwright.py
+uv run python scripts/cli/토지거래허가구역_playwright.py
 # 또는
 uv run python 서울_공동주택.py
 ```
@@ -424,6 +455,7 @@ uv run python 서울_공동주택.py
 ## ⚠️ 주의사항
 
 - 크롤링 대상 웹사이트의 이용약관을 준수해주세요
+- **조회 기간은 최대 60일로 제한**됩니다 (웹사이트 정책)
 - API 사용량 제한에 유의해주세요 (일일 제한 있음)
 - 대량 데이터 수집 시 시간이 오래 걸릴 수 있습니다 (25개 구 전체: 약 10-30분)
 - Headless 모드가 더 빠르지만, 문제 발생 시 창을 켜서 확인하세요
@@ -456,8 +488,16 @@ netstat -ano | findstr :5000  # Windows
 ### 데이터가 수집되지 않음
 
 - 날짜 형식이 올바른지 확인 (YYYY-MM-DD)
+- **조회 기간이 60일 이내인지 확인**
+- 시작일이 종료일보다 이전인지 확인
 - 해당 기간에 실제 데이터가 있는지 확인
 - Headless 모드를 끄고 브라우저 창을 확인
+
+### 날짜 입력 오류
+
+- **"조회 기간이 60일을 초과합니다"**: 시작일과 종료일의 차이를 60일 이내로 조정
+- **"시작일자가 종료일자보다 늦습니다"**: 날짜 순서를 확인하고 재입력
+- **"올바른 날짜 형식이 아닙니다"**: YYYY-MM-DD 형식으로 입력 (예: 2025-11-01)
 
 ### 실행 파일이 실행되지 않음
 
