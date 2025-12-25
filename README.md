@@ -9,6 +9,7 @@
 - [웹 GUI 사용 방법](#웹-gui-사용-방법-추천)
 - [CLI 사용 방법](#cli-사용-방법)
 - [실행 파일 빌드](#실행-파일-빌드)
+- [다른 사람과 공유하기](#다른-사람과-공유하기)
 - [기술 스택](#기술-스택)
 - [API 키 발급](#api-키-발급)
 - [문제 해결](#문제-해결)
@@ -29,19 +30,25 @@
 토지거래허가구역/
 │
 ├── 🌐 웹 GUI (추천)
-│   ├── 토지거래허가구역_Playwright_Web-GUI.py     # Flask 웹 서버
-│   └── templates/index.html                       # 웹 인터페이스
+│   ├── 토지거래허가구역_Playwright_Web-GUI.py     # 토지거래허가구역 크롤러
+│   ├── 서울_공동주택_Web-GUI.py                   # 서울 공동주택 수집기
+│   └── templates/
+│       ├── index.html                            # 토지거래허가구역 웹 UI
+│       └── apartment_index.html                  # 공동주택 웹 UI
 │
 ├── 💻 CLI 버전
 │   ├── 토지거래허가구역+도로명주소+좌표_서울.py              # Selenium CLI
-│   └── 토지거래허가구역+도로명주소+좌표_서울_playwright.py   # Playwright CLI
+│   ├── 토지거래허가구역+도로명주소+좌표_서울_playwright.py   # Playwright CLI
+│   └── 서울_공동주택.py                                    # 공동주택 수집 CLI
 │
 ├── 🖥️ 데스크톱 GUI (실행 불가)
 │   └── 토지거래허가구역_Selenium_tkinter-GUI.py     # tkinter GUI (macOS 호환성 문제)
 │
 ├── 🔧 빌드 스크립트
-│   ├── build_web_app.sh          # Mac/Linux 웹 GUI 빌드
-│   ├── build_web_app.bat         # Windows 웹 GUI 빌드
+│   ├── build_web_app.sh          # Mac/Linux 토지거래허가구역 빌드
+│   ├── build_web_app.bat         # Windows 토지거래허가구역 빌드
+│   ├── build_apartment_app.sh    # Mac/Linux 공동주택 빌드
+│   ├── build_apartment_app.bat   # Windows 공동주택 빌드
 │   ├── build_app.sh              # Mac/Linux tkinter 빌드 (비활성)
 │   └── build_app.bat             # Windows tkinter 빌드 (비활성)
 │
@@ -191,7 +198,9 @@ uv run python 토지거래허가구역+도로명주소+좌표_서울.py
 
 다른 사람에게 배포하거나 Python 설치 없이 사용하려면 실행 파일을 빌드하세요.
 
-### Mac/Linux
+### 토지거래허가구역 크롤러 빌드
+
+#### Mac/Linux
 
 ```bash
 # 실행 권한 부여
@@ -201,24 +210,177 @@ chmod +x build_web_app.sh
 ./build_web_app.sh
 ```
 
-### Windows
+#### Windows
 
 ```cmd
 # 빌드 실행
 build_web_app.bat
 ```
 
-### 빌드 결과
+#### 빌드 결과
 
 - **위치**: `dist/토지거래허가구역크롤러.exe` (Windows) 또는 `dist/토지거래허가구역크롤러` (Mac)
+- **포트**: 5000
 - **크기**: 약 80-100MB
-- **포함 내용**: Python 인터프리터, 모든 의존성, 웹 UI
+
+### 서울 공동주택 수집기 빌드
+
+#### Mac/Linux
+
+```bash
+# 실행 권한 부여
+chmod +x build_apartment_app.sh
+
+# 빌드 실행
+./build_apartment_app.sh
+```
+
+#### Windows
+
+```cmd
+# 빌드 실행
+build_apartment_app.bat
+```
+
+#### 빌드 결과
+
+- **위치**: `dist/서울공동주택수집기.exe` (Windows) 또는 `dist/서울공동주택수집기` (Mac)
+- **포트**: 5001
+- **크기**: 약 60-80MB
 
 ### 배포 방법
 
 1. `dist` 폴더의 실행 파일을 복사
 2. 다른 사람에게 전달
 3. 실행 파일을 더블클릭하면 자동으로 브라우저 열림
+
+**참고**: 두 프로그램은 각각 다른 포트(5000, 5001)를 사용하므로 동시 실행 가능합니다.
+
+## 🎁 다른 사람과 공유하기
+
+이 프로그램을 다른 사람들과 공유하는 방법은 두 가지가 있습니다.
+
+### 방법 1: 실행 파일로 공유 (추천 - Python 설치 불필요)
+
+**대상**: 일반 사용자, Python이 설치되지 않은 환경
+
+**공유할 파일**:
+1. 위의 빌드 스크립트를 실행하여 실행 파일 생성
+2. `dist` 폴더 내의 실행 파일만 전달
+
+| 프로그램 | Windows | Mac/Linux |
+|---------|---------|-----------|
+| 토지거래허가구역 크롤러 | `토지거래허가구역크롤러.exe` | `토지거래허가구역크롤러` |
+| 서울 공동주택 수집기 | `서울공동주택수집기.exe` | `서울공동주택수집기` |
+
+**사용 방법**:
+- 받은 사람은 실행 파일을 더블클릭하기만 하면 됩니다
+- 자동으로 브라우저가 열리고 웹 인터페이스가 표시됩니다
+- Python이나 다른 소프트웨어 설치 불필요
+
+**장점**:
+- ✅ Python 설치 불필요
+- ✅ 의존성 관리 불필요
+- ✅ 사용이 매우 간편함
+- ✅ 파일 하나만 전달하면 끝
+
+**단점**:
+- ❌ 파일 크기가 큼 (80-100MB)
+- ❌ 코드 수정 불가
+
+### 방법 2: 소스 코드로 공유 (개발자용)
+
+**대상**: Python 개발자, 코드를 수정하고 싶은 사용자
+
+**공유할 파일들**:
+```
+토지거래허가구역/
+├── pyproject.toml                              # 필수
+├── uv.lock                                     # 필수
+├── 토지거래허가구역_Playwright_Web-GUI.py      # 필수 (토지거래)
+├── 서울_공동주택_Web-GUI.py                    # 필수 (공동주택)
+├── templates/                                  # 필수
+│   ├── index.html                             # 필수
+│   └── apartment_index.html                   # 필수
+├── README.md                                   # 권장
+└── .gitignore                                  # 선택
+```
+
+또는 **GitHub 저장소 주소만 전달**:
+```bash
+git clone https://github.com/foodie-repository/seoul-transaction-permit.git
+cd seoul-transaction-permit
+```
+
+**사용 방법**:
+```bash
+# 1. uv 설치 (최초 1회)
+curl -LsSf https://astral.sh/uv/install.sh | sh  # Mac/Linux
+# 또는
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"  # Windows
+
+# 2. 의존성 설치
+uv sync
+
+# 3. 프로그램 실행
+# 토지거래허가구역 크롤러
+uv run python 토지거래허가구역_Playwright_Web-GUI.py
+
+# 또는 서울 공동주택 수집기
+uv run python 서울_공동주택_Web-GUI.py
+```
+
+**장점**:
+- ✅ 코드 수정 가능
+- ✅ 최신 업데이트 반영 가능
+- ✅ 파일 크기가 작음
+
+**단점**:
+- ❌ Python 및 uv 설치 필요
+- ❌ 기술적 지식 필요
+
+### 방법 3: CLI 버전 공유 (고급 사용자용)
+
+**대상**: 명령줄 환경을 선호하는 사용자
+
+**공유할 파일들**:
+- `토지거래허가구역+도로명주소+좌표_서울_playwright.py`
+- `서울_공동주택.py`
+- `pyproject.toml`
+- `uv.lock`
+
+**사용 방법**:
+```bash
+uv sync
+uv run python 토지거래허가구역+도로명주소+좌표_서울_playwright.py
+# 또는
+uv run python 서울_공동주택.py
+```
+
+### 📦 권장 배포 방법
+
+| 대상 | 추천 방법 | 전달 파일 |
+|-----|----------|----------|
+| **일반 사용자** | 실행 파일 | `토지거래허가구역크롤러.exe` 또는 `서울공동주택수집기.exe` |
+| **Python 개발자** | GitHub | 저장소 주소 |
+| **사내 배포** | 실행 파일 + README | `dist` 폴더 + 사용 설명서 |
+| **오픈소스 공유** | GitHub | 전체 소스 코드 |
+
+### 💡 팁
+
+1. **실행 파일 공유 시**:
+   - README 파일도 함께 제공하면 좋습니다
+   - API 키 발급 방법을 안내하세요
+   - 샘플 CSV 파일을 함께 제공하면 이해가 쉽습니다
+
+2. **소스 코드 공유 시**:
+   - `.gitignore`로 민감한 정보 제외
+   - API 키는 환경 변수로 관리하도록 안내
+   - 의존성 설치 명령어를 명확히 안내
+
+3. **두 프로그램 모두 공유**:
+   - 두 실행 파일을 함께 전달해도 됩니다
+   - 다른 포트(5000, 5001)를 사용하므로 동시 실행 가능
 
 ## 🛠️ 기술 스택
 
