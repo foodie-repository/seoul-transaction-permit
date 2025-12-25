@@ -1,0 +1,11 @@
+[project]
+name = "land-contract-crawler"
+version = "0.1.0"
+description = "서울시 토지거래허가구역 정보 수집 및 도로명주소 변환, 좌표 추출 크롤러"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.3.3",
+    "requests>=2.32.5",
+    "selenium>=4.39.0",
+    "webdriver-manager>=4.0.2",
+]
